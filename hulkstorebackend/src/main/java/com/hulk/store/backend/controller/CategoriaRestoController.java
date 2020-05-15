@@ -3,7 +3,6 @@ package com.hulk.store.backend.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -58,7 +57,6 @@ public class CategoriaRestoController {
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
 		// si el id que estamos buscando no existe le informamos al cliente que esta
 		// consumiento el servicio
 		if (categoria == null) {
@@ -66,7 +64,6 @@ public class CategoriaRestoController {
 					"La Categria con el Id:".concat(id.toString()).concat(" no existe en la base de datos"));
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
 		}
-
 		// si todo sale bien, respondemos al cliente con la entidad buscada y enviamos
 		// un status ok
 		return new ResponseEntity<Categoria>(categoria, HttpStatus.OK);
@@ -81,25 +78,19 @@ public class CategoriaRestoController {
 
 		// si existen errores, los colocamos en una lista y enviamos.
 		if (result.hasErrors()) {
-
-			List<String> errors = result.getFieldErrors().stream()
-					.map(err -> "El campo '" + err.getField() + "' " + err.getDefaultMessage())
-					.collect(Collectors.toList());
-
+			List<String> errors = categoriaService.validacion(result);
+			
 			response.put("errors", errors);
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
 		}
 
 		try {
-
 			categoriaNew = categoriaService.save(categoria);
 		} catch (DataAccessException e) {
-			// TODO: handle exception
 			response.put("mensaje", "Error al Realizar el Insert en la Base de datos");
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
 		// Se envia la respuesta del cliente
 		response.put("mensaje", "La Categoria ha sido creado con Exito");
 		response.put("categoria", categoriaNew);
@@ -119,9 +110,7 @@ public class CategoriaRestoController {
 
 		if (result.hasErrors()) {
 
-			List<String> errors = result.getFieldErrors().stream()
-					.map(err -> "El campo '" + err.getField() + "' " + err.getDefaultMessage())
-					.collect(Collectors.toList());
+			List<String> errors = categoriaService.validacion(result);
 
 			response.put("errors", errors);
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
@@ -134,11 +123,8 @@ public class CategoriaRestoController {
 		}
 
 		try {
-			// Setiamos la entidad con los nuevos valores
-			categoriaActual.setDescripcion(categoria.getDescripcion());
-
 			// Guardamos
-			categoriaUpdated = categoriaService.save(categoriaActual);
+			categoriaUpdated = categoriaService.save(categoriaService.Actualizar(categoriaActual, categoria));
 
 		} catch (DataAccessException e) {
 			// TODO: handle exception

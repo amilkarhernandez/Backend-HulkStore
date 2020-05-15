@@ -74,8 +74,6 @@ public class FacturaRestController {
 				response.put("mensaje",
 						"Error: El Producto ".concat(proMod.getDescripcion()).concat(" Tiene un Stock en Cero."));
 				return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
-				// return new ResponseEntity<Map<String, Object>>(response,
-				// HttpStatus.NOT_FOUND);
 			}
 			// si la cantidad ingresada es mayor a la que esta en el stock, entonces
 			// devolvemos una respuesta.
@@ -84,9 +82,8 @@ public class FacturaRestController {
 						.concat(" No Cuenta con la Cantidad Ingresada"));
 				return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
 			}
-
 			// actualizamos el stock restando la cantdad al stock de ese producto
-			proMod.setStock(proMod.getStock() - item.getCantidad());
+			proMod.setStock(clienteService.restarStock(proMod.getStock(), item.getCantidad()));
 			// guardamos el Producto y la Factura
 			productoService.save(proMod);
 

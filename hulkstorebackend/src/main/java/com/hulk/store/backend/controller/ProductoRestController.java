@@ -3,7 +3,6 @@ package com.hulk.store.backend.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -50,7 +49,6 @@ public class ProductoRestController {
 		try {
 			producto = productoService.findById(id);
 		} catch (DataAccessException e) {
-			// TODO: handle exception
 			response.put("mensaje", "Error al Realizar la Consulta en la Base de datos");
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -71,22 +69,16 @@ public class ProductoRestController {
 	public ResponseEntity<?> create(@Valid @RequestBody Producto producto, BindingResult result) {
 		Producto productoNew = null;
 		Map<String, Object> response = new HashMap<>();
-
+		
 		if (result.hasErrors()) {
-
-			List<String> errors = result.getFieldErrors().stream()
-					.map(err -> "El campo '" + err.getField() + "' " + err.getDefaultMessage())
-					.collect(Collectors.toList());
-
-			response.put("errors", errors);
+			List<String> errores = productoService.validacion(result);
+			response.put("errors", errores);
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
 		}
 
 		try {
-
 			productoNew = productoService.save(producto);
 		} catch (DataAccessException e) {
-			// TODO: handle exception
 			response.put("mensaje", "Error al Realizar el Insert en la Base de datos");
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -108,15 +100,11 @@ public class ProductoRestController {
 		Map<String, Object> response = new HashMap<>();
 
 		if (result.hasErrors()) {
-
-			List<String> errors = result.getFieldErrors().stream()
-					.map(err -> "El campo '" + err.getField() + "' " + err.getDefaultMessage())
-					.collect(Collectors.toList());
+			List<String> errors = productoService.validacion(result);
 
 			response.put("errors", errors);
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
 		}
-
 		if (productoActual == null) {
 			response.put("mensaje", "Error: no se puede Editar, El Producto con el Id:".concat(id.toString())
 					.concat(" no existe en la base de datos"));
@@ -124,16 +112,9 @@ public class ProductoRestController {
 		}
 
 		try {
-			productoActual.setSerial(producto.getSerial());
-			productoActual.setDescripcion(producto.getDescripcion());
-			productoActual.setStock(producto.getStock());
-			productoActual.setValorUnitario(producto.getValorUnitario());
-			productoActual.setCategoria(producto.getCategoria());
-
-			productoUpdated = productoService.save(productoActual);
+			productoUpdated = productoService.save(productoService.Actualizar(productoActual, producto));
 
 		} catch (DataAccessException e) {
-			// TODO: handle exception
 			response.put("mensaje", "Error al Actualizar en la Base de datos");
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -153,7 +134,6 @@ public class ProductoRestController {
 		try {
 			productoService.delete(id);
 		} catch (DataAccessException e) {
-			// TODO: handle exception
 			response.put("mensaje", "Error al Eliminar en la Base de datos");
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
