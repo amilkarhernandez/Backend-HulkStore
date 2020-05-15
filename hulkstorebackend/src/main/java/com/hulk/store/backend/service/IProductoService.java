@@ -2,6 +2,8 @@ package com.hulk.store.backend.service;
 
 import java.util.List;
 
+import org.springframework.validation.BindingResult;
+
 import com.hulk.store.backend.entity.Categoria;
 import com.hulk.store.backend.entity.Producto;
 
@@ -18,5 +20,9 @@ public interface IProductoService {
 	public void delete(Long id);
 	
 	public List<Categoria> findAllCategorias();
+	
+	public List<String> validacion(BindingResult result);
+	
+	public Producto Actualizar(Producto productoActual, Producto Actualizado);
 
 }

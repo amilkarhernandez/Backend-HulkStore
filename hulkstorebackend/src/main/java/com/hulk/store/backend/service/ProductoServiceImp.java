@@ -1,9 +1,11 @@
 package com.hulk.store.backend.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import com.hulk.store.backend.dao.IProductoDao;
 import com.hulk.store.backend.entity.Categoria;
@@ -42,6 +44,25 @@ public class ProductoServiceImp implements IProductoService {
 	public List<Categoria> findAllCategorias() {
 		
 		return productoDao.findAllCategorias();
+	}
+
+	@Override
+	public List<String> validacion(BindingResult result) {
+		
+		return result.getFieldErrors().stream()
+				.map(err -> "El campo '" + err.getField() + "' " + err.getDefaultMessage())
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public Producto Actualizar(Producto productoActual, Producto Actualizado) {
+		productoActual.setSerial(Actualizado.getSerial());
+		productoActual.setDescripcion(Actualizado.getDescripcion());
+		productoActual.setStock(Actualizado.getStock());
+		productoActual.setValorUnitario(Actualizado.getValorUnitario());
+		productoActual.setCategoria(Actualizado.getCategoria());
+		
+		return productoActual;
 	}
 
 }

@@ -1,10 +1,12 @@
 package com.hulk.store.backend.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
 
 import com.hulk.store.backend.dao.IClienteDao;
 import com.hulk.store.backend.dao.IFacturaDao;
@@ -75,5 +77,29 @@ public class ClienteServiceImp implements IClienteService {
 	public List<Producto> findProductoByNombre(String term) {
 		return productoDao.findByNombre(term);
 	}
+
+	@Override
+	public List<String> validacion(BindingResult result) {
+		return result.getFieldErrors().stream()
+				.map(err -> "El campo '" + err.getField() + "' " + err.getDefaultMessage())
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public Cliente Actualizar(Cliente clienteActual, Cliente Actualizado) {
+		clienteActual.setNit(Actualizado.getNit());
+		clienteActual.setNombres(Actualizado.getNombres());
+		clienteActual.setApellidos(Actualizado.getApellidos());
+		clienteActual.setTelefono(Actualizado.getTelefono());
+		clienteActual.setGenero(Actualizado.getGenero());
+		
+		return clienteActual;
+	}
+
+	@Override
+	public int restarStock(int stock, int cantidad) {
+		return stock-cantidad;
+	}
+
 
 }
